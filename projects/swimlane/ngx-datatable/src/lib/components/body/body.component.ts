@@ -38,6 +38,7 @@ import { translateXY } from '../../utils/translate';
         [scrollHeight]="scrollHeight"
         [scrollWidth]="columnGroupWidths?.total"
         (scroll)="onBodyScroll($event)"
+        cdkDropList
       >
         <datatable-summary-row
           *ngIf="summaryRow && summaryPosition === 'top'"
@@ -51,6 +52,8 @@ import { translateXY } from '../../utils/translate';
         <datatable-row-wrapper
           [groupedRows]="groupedRows"
           *ngFor="let group of temp; let i = index; trackBy: rowTrackingFn"
+          cdkDrag
+          cdkDragLockAxis="y"
           [innerWidth]="innerWidth"
           [ngStyle]="getRowsStyles(group)"
           [rowDetail]="rowDetail"
