@@ -15,6 +15,7 @@ import { SelectionType } from '../../types/selection.type';
 import { columnsByPin, columnGroupWidths } from '../../utils/column';
 import { RowHeightCache } from '../../utils/row-height-cache';
 import { translateXY } from '../../utils/translate';
+import { moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'datatable-body',
@@ -39,6 +40,7 @@ import { translateXY } from '../../utils/translate';
         [scrollWidth]="columnGroupWidths?.total"
         (scroll)="onBodyScroll($event)"
         cdkDropList
+        (cdkDropListDropped)="drop($event)"
       >
         <datatable-summary-row
           *ngIf="summaryRow && summaryPosition === 'top'"
@@ -350,6 +352,10 @@ export class DataTableBodyComponent implements OnInit, OnDestroy {
     }
 
     this.scroller.setOffset(offset || 0);
+  }
+
+  drop(event: any): void {
+    moveItemInArray(this.temp, event.previousIndex, event.currentIndex);
   }
 
   /**
