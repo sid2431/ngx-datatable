@@ -40,6 +40,7 @@ import { moveItemInArray } from '@angular/cdk/drag-drop';
         [scrollWidth]="columnGroupWidths?.total"
         (scroll)="onBodyScroll($event)"
         cdkDropList
+        [cdkDropListDisabled]="false"
         (cdkDropListDropped)="drop($event)"
       >
         <datatable-summary-row
@@ -54,8 +55,6 @@ import { moveItemInArray } from '@angular/cdk/drag-drop';
         <datatable-row-wrapper
           [groupedRows]="groupedRows"
           *ngFor="let group of temp; let i = index; trackBy: rowTrackingFn"
-          cdkDrag
-          cdkDragLockAxis="y"
           [innerWidth]="innerWidth"
           [ngStyle]="getRowsStyles(group)"
           [rowDetail]="rowDetail"
@@ -66,6 +65,16 @@ import { moveItemInArray } from '@angular/cdk/drag-drop';
           [expanded]="getRowExpanded(group)"
           [rowIndex]="getRowIndex(group && group[i])"
           (rowContextmenu)="rowContextmenu.emit($event)"
+          cdkDrag
+          cdkDragLockAxis="y"
+          (cdkDragDropped)="dragDropped.emit({ event: $event, data: group })"
+          (cdkDragEnded)="dragEnded.emit({ event: $event, data: group })"
+          (cdkDragEntered)="dragEntered.emit({ event: $event, data: group })"
+          (cdkDragExited)="dragExited.emit({ event: $event, data: group })"
+          (cdkDragMoved)="dragMoved.emit({ event: $event, data: group })"
+          (cdkDragReleased)="dragReleased.emit({ event: $event, data: group })"
+          (cdkDragStarted)="dragStarted.emit({ event: $event, data: group })"
+          [cdkDragPreviewClass]="dragPreviewClass"
         >
           <datatable-body-row
             role="row"
@@ -105,6 +114,9 @@ import { moveItemInArray } from '@angular/cdk/drag-drop';
             >
             </datatable-body-row>
           </ng-template>
+          <div *ngIf="dragPreview">
+            <div *cdkDragPreview [innerHTML]="getPreview(group)"></div>
+          </div>
         </datatable-row-wrapper>
         <datatable-summary-row
           role="row"
@@ -151,6 +163,9 @@ export class DataTableBodyComponent implements OnInit, OnDestroy {
   @Input() summaryRow: boolean;
   @Input() summaryPosition: string;
   @Input() summaryHeight: number;
+  @Input() isDraggable: boolean;
+  @Input() dragPreview: boolean;
+  @Input() dragPreviewClass: string;
 
   @Input() set pageSize(val: number) {
     this._pageSize = val;
@@ -230,6 +245,13 @@ export class DataTableBodyComponent implements OnInit, OnDestroy {
   @Output() detailToggle: EventEmitter<any> = new EventEmitter();
   @Output() rowContextmenu = new EventEmitter<{ event: MouseEvent; row: any }>(false);
   @Output() treeAction: EventEmitter<any> = new EventEmitter();
+  @Output() dragDropped: EventEmitter<any> = new EventEmitter();
+  @Output() dragEnded: EventEmitter<any> = new EventEmitter();
+  @Output() dragEntered: EventEmitter<any> = new EventEmitter();
+  @Output() dragExited: EventEmitter<any> = new EventEmitter();
+  @Output() dragMoved: EventEmitter<any> = new EventEmitter();
+  @Output() dragReleased: EventEmitter<any> = new EventEmitter();
+  @Output() dragStarted: EventEmitter<any> = new EventEmitter();
 
   @ViewChild(ScrollerComponent) scroller: ScrollerComponent;
 
@@ -333,7 +355,11 @@ export class DataTableBodyComponent implements OnInit, OnDestroy {
       this.listener.unsubscribe();
     }
   }
-
+  getPreview(obj): any {
+    return '<h2>This is a paragraph.</h2>';
+    // return Object.values(obj).join(' ');
+    // return obj[Object.keys(obj)[0]];
+  }
   /**
    * Updates the Y offset given a new offset.
    */

@@ -57,6 +57,8 @@ import { sortRows } from '../utils/sort';
   }
 })
 export class DatatableComponent implements OnInit, DoCheck, AfterViewInit {
+  @Input() isDraggable: boolean;
+  @Input() dragPreviewClass: string;
   /**
    * Template for the target marker of drag target columns.
    */
@@ -457,6 +459,14 @@ export class DatatableComponent implements OnInit, DoCheck, AfterViewInit {
    * A row was expanded ot collapsed for tree
    */
   @Output() treeAction: EventEmitter<any> = new EventEmitter();
+
+  @Output() dragDropped: EventEmitter<any> = new EventEmitter();
+  @Output() dragEnded: EventEmitter<any> = new EventEmitter();
+  @Output() dragEntered: EventEmitter<any> = new EventEmitter();
+  @Output() dragExited: EventEmitter<any> = new EventEmitter();
+  @Output() dragMoved: EventEmitter<any> = new EventEmitter();
+  @Output() dragReleased: EventEmitter<any> = new EventEmitter();
+  @Output() dragStarted: EventEmitter<any> = new EventEmitter();
 
   /**
    * CSS class applied if the header height if fixed height.

@@ -56,12 +56,21 @@
     [summaryRow]="summaryRow"
     [summaryHeight]="summaryHeight"
     [summaryPosition]="summaryPosition"
+    [isDraggable]="isDraggable"
+    [dragPreviewClass]="dragPreviewClass"
     (page)="onBodyPage($event)"
     (activate)="activate.emit($event)"
     (rowContextmenu)="onRowContextmenu($event)"
     (select)="onBodySelect($event)"
     (scroll)="onBodyScroll($event)"
     (treeAction)="onTreeAction($event)"
+    (dragDropped)="dragDropped.emit($event)"
+    (dragEnded)="dragEnded.emit($event)"
+    (dragEntered)="dragEntered.emit($event)"
+    (dragExited)="dragExited.emit($event)"
+    (dragMoved)="dragMoved.emit($event)"
+    (dragReleased)="dragReleased.emit($event)"
+    (dragStarted)="dragStarted.emit($event)"
   >
   </datatable-body>
   <datatable-footer
