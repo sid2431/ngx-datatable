@@ -16,6 +16,7 @@ import { columnsByPin, columnGroupWidths } from '../../utils/column';
 import { RowHeightCache } from '../../utils/row-height-cache';
 import { translateXY } from '../../utils/translate';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
+import { PreviewContainer } from '@angular/cdk/drag-drop/drag-ref';
 
 @Component({
   selector: 'datatable-body',
@@ -67,13 +68,17 @@ import { moveItemInArray } from '@angular/cdk/drag-drop';
           (rowContextmenu)="rowContextmenu.emit($event)"
           cdkDrag
           cdkDragLockAxis="y"
-          (cdkDragDropped)="dragDropped.emit({ event: $event, data: group })"
+          [cdkDragPreviewContainer]="'global'"
+          (cdkDragDropped)="dragDropped.emit({ event: $event, data: group }); onDragDrop()"
           (cdkDragEnded)="dragEnded.emit({ event: $event, data: group })"
           (cdkDragEntered)="dragEntered.emit({ event: $event, data: group })"
           (cdkDragExited)="dragExited.emit({ event: $event, data: group })"
-          (cdkDragMoved)="dragMoved.emit({ event: $event, data: group })"
+          (cdkDragMoved)="dragMoved.emit({ event: $event, data: group }); onDragMoved($event)"
           (cdkDragReleased)="dragReleased.emit({ event: $event, data: group })"
-          (cdkDragStarted)="dragStarted.emit({ event: $event, data: group })"
+          (cdkDragStarted)="
+            dragStarted.emit({ event: $event, data: group });
+            dragStartedNow({ event: $event, data: group, currentIndex: i })
+          "
           [cdkDragPreviewClass]="dragPreviewClass"
         >
           <datatable-body-row
@@ -166,6 +171,7 @@ export class DataTableBodyComponent implements OnInit, OnDestroy {
   @Input() isDraggable: boolean;
   @Input() dragPreview: boolean;
   @Input() dragPreviewClass: string;
+  @Input() cdkDragPreviewContainer: PreviewContainer;
 
   @Input() set pageSize(val: number) {
     this._pageSize = val;
@@ -293,6 +299,11 @@ export class DataTableBodyComponent implements OnInit, OnDestroy {
   _offset: number;
   _pageSize: number;
 
+  draggedItem: any;
+  downTimeInterval: any;
+  upTimeInterval: any;
+  currentIndex: number;
+
   /**
    * Creates an instance of DataTableBodyComponent.
    */
@@ -406,7 +417,7 @@ export class DataTableBodyComponent implements OnInit, OnDestroy {
 
     this.updateIndexes();
     this.updatePage(event.direction);
-    this.updateRows();
+    this.updateRows(event.direction);
   }
 
   /**
@@ -429,7 +440,7 @@ export class DataTableBodyComponent implements OnInit, OnDestroy {
   /**
    * Updates the rows in the view port
    */
-  updateRows(): void {
+  updateRows(direction?: string): void {
     const { first, last } = this.indexes;
     let rowIndex = first;
     let idx = 0;
@@ -479,7 +490,58 @@ export class DataTableBodyComponent implements OnInit, OnDestroy {
       }
     }
 
+    if (this.draggedItem && direction) {
+      if (direction === 'down') {
+        temp.splice(temp.length - 1, 0, this.draggedItem);
+      } else {
+        temp.splice(0, 0, this.draggedItem);
+      }
+    }
     this.temp = temp;
+  }
+
+  onDragMoved(event: any): void {
+    /*if (event.delta.y === -1) {
+      this.updateOffsetY(this.currentIndex-=1 / this.pageSize)
+    } else {
+      this.updateOffsetY(this.currentIndex+=1 / this.pageSize)
+    }
+    console.log(event);*/
+  }
+
+  dragStartedNow(data: any): void {
+    this.draggedItem = data.data;
+    this.currentIndex = data.currentIndex;
+  }
+
+  @Input() set onScrollDown(event: any) {
+    console.log(event);
+    if (this.draggedItem) {
+      if (event.move === 'in') {
+        this.downTimeInterval = setInterval(() => {
+          this.updateOffsetY(this.offset + 1);
+        }, 500);
+      } else {
+        clearInterval(this.downTimeInterval);
+      }
+    }
+  }
+
+  @Input() set onScrollUp(event: any) {
+    console.log(event);
+    if (this.draggedItem) {
+      if (event.move === 'in') {
+        this.upTimeInterval = setInterval(() => {
+          this.updateOffsetY(this.offset - 1);
+        }, 500);
+      } else {
+        clearInterval(this.upTimeInterval);
+      }
+    }
+  }
+
+  onDragDrop() {
+    this.draggedItem = null;
   }
 
   /**

@@ -22,6 +22,8 @@
     (reorder)="onColumnReorder($event)"
     (select)="onHeaderSelect($event)"
     (columnContextmenu)="onColumnContextmenu($event)"
+    (mouseenter)="onScrollUp = { event: $event, move: 'in' }"
+    (mouseout)="onScrollUp = { event: $event, move: 'out' }"
   >
   </datatable-header>
   <datatable-body
@@ -58,6 +60,9 @@
     [summaryPosition]="summaryPosition"
     [isDraggable]="isDraggable"
     [dragPreviewClass]="dragPreviewClass"
+    [cdkDragPreviewContainer]="dragPreviewContainer"
+    [onScrollUp]="onScrollUp"
+    [onScrollDown]="onScrollDown"
     (page)="onBodyPage($event)"
     (activate)="activate.emit($event)"
     (rowContextmenu)="onRowContextmenu($event)"
@@ -88,6 +93,8 @@
     [selectedMessage]="!!selectionType && messages.selectedMessage"
     [pagerNextIcon]="cssClasses.pagerNext"
     (page)="onFooterPage($event)"
+    (mouseenter)="onScrollDown = { event: $event, move: 'in' }"
+    (mouseout)="onScrollDown = { event: $event, move: 'out' }"
   >
   </datatable-footer>
 </div>

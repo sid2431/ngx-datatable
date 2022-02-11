@@ -45,6 +45,7 @@ import { DimensionsHelper } from '../services/dimensions-helper.service';
 import { throttleable } from '../utils/throttle';
 import { forceFillColumnWidths, adjustColumnWidths } from '../utils/math';
 import { sortRows } from '../utils/sort';
+import { PreviewContainer } from '@angular/cdk/drag-drop/drag-ref';
 
 @Component({
   selector: 'ngx-datatable',
@@ -59,6 +60,7 @@ import { sortRows } from '../utils/sort';
 export class DatatableComponent implements OnInit, DoCheck, AfterViewInit {
   @Input() isDraggable: boolean;
   @Input() dragPreviewClass: string;
+  @Input() dragPreviewContainer: PreviewContainer;
   /**
    * Template for the target marker of drag target columns.
    */
@@ -645,6 +647,9 @@ export class DatatableComponent implements OnInit, DoCheck, AfterViewInit {
   _columns: TableColumn[];
   _columnTemplates: QueryList<DataTableColumnDirective>;
   _subscriptions: Subscription[] = [];
+
+  onScrollDown;
+  onScrollUp;
 
   constructor(
     @SkipSelf() private scrollbarHelper: ScrollbarHelper,
