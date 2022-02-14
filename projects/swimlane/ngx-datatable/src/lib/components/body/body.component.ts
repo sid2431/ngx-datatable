@@ -69,7 +69,7 @@ import { PreviewContainer } from '@angular/cdk/drag-drop/drag-ref';
           cdkDrag
           cdkDragLockAxis="y"
           [cdkDragPreviewContainer]="'global'"
-          (cdkDragDropped)="dragDropped.emit({ event: $event, data: group }); onDragDrop()"
+          (cdkDragDropped)="onDragDrop({ event: $event, data: group })"
           (cdkDragEnded)="dragEnded.emit({ event: $event, data: group })"
           (cdkDragEntered)="dragEntered.emit({ event: $event, data: group })"
           (cdkDragExited)="dragExited.emit({ event: $event, data: group })"
@@ -515,7 +515,6 @@ export class DataTableBodyComponent implements OnInit, OnDestroy {
   }
 
   @Input() set onScrollDown(event: any) {
-    console.log(event);
     if (this.draggedItem) {
       if (event.move === 'in') {
         this.downTimeInterval = setInterval(() => {
@@ -528,7 +527,6 @@ export class DataTableBodyComponent implements OnInit, OnDestroy {
   }
 
   @Input() set onScrollUp(event: any) {
-    console.log(event);
     if (this.draggedItem) {
       if (event.move === 'in') {
         this.upTimeInterval = setInterval(() => {
@@ -540,7 +538,14 @@ export class DataTableBodyComponent implements OnInit, OnDestroy {
     }
   }
 
-  onDragDrop() {
+  onDragDrop(data: any) {
+    const currentIndex = data.event.currentIndex;
+    const additionalData: any = {
+      nextToPaste: this.temp.length > currentIndex ? this.temp[currentIndex] : null,
+      previousToPaste: this.temp.length > currentIndex + 1 ? this.temp[currentIndex + 1] : null
+    };
+    const updatedData = { ...data, ...additionalData };
+    this.dragDropped.emit(updatedData);
     this.draggedItem = null;
   }
 
